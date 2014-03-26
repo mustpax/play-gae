@@ -234,7 +234,7 @@ def execute(**kargs):
         if os.name == 'nt':
                 os.system('%s/bin/appcfg.cmd update %s' % (gae_path, war_path))
         else:
-                os.system('%s/bin/appcfg.sh update %s' % (gae_path, war_path))
+                os.system('%s/bin/appcfg.sh --use_java7 update %s' % (gae_path, war_path))
 
         print "~ "
         print "~ Done!"
