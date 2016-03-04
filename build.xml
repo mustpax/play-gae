@@ -28,7 +28,9 @@
                 <include name="**/play.static"/>
             </fileset>
         </copy>
-        <jar destfile="lib/play-gae.jar" basedir="tmp/classes">
+        <jar destfile="lib/play-gae.jar">
+            <fileset dir="tmp/classes"/>
+            <fileset dir="src"/>
             <manifest>
                 <section name="Play">
                     <attribute name="Specification-Title" value="Google App Engine module"/>
