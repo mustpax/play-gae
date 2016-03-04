@@ -20,8 +20,11 @@ public class GAEPlugin extends PlayPlugin {
 
     @Override
     public void onLoad() {
-        // Remove Jobs from plugin list
-    	Play.pluginCollection.disablePlugin(play.jobs.JobsPlugin.class);
+        // Remove Jobs from plugin list iff NOT running tests
+        // Jobs plugin is necessary to dispatch test executions
+        if (! Play.runingInTestMode()) {
+            Play.pluginCollection.disablePlugin(play.jobs.JobsPlugin.class);
+        }
     	
         // Create a fake development environment if not run in the Google SDK
         if (ApiProxy.getCurrentEnvironment() == null) {
