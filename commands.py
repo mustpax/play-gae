@@ -72,7 +72,7 @@ def package_as_gae_war(app, env, war_path, war_zip_path, war_exclusion_list = No
         shutil.copyfile(os.path.join(env["basedir"], 'resources/war/web.xml'), os.path.join(war_path, 'WEB-INF/web.xml'))
     application_name = app.readConf('application.name')
     replaceAll(os.path.join(war_path, 'WEB-INF/web.xml'), r'%APPLICATION_NAME%', application_name)
-    if env["id"] is not "":
+    if env["id"]:
         replaceAll(os.path.join(war_path, 'WEB-INF/web.xml'), r'%PLAY_ID%', env["id"])
     else:
         replaceAll(os.path.join(war_path, 'WEB-INF/web.xml'), r'%PLAY_ID%', 'war')
@@ -84,7 +84,6 @@ def package_as_gae_war(app, env, war_path, war_zip_path, war_exclusion_list = No
         shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/logs'))
     if os.path.exists(os.path.join(war_path, 'WEB-INF/application/tmp')):
         shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/tmp'))
-    # Lukas&Arian: lib staat nu dubbel in de export!
     if os.path.exists(os.path.join(war_path, 'WEB-INF/application/lib')):
         shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/lib'))
     if os.path.exists(os.path.join(war_path, 'WEB-INF/application/modules')):
