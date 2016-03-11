@@ -111,7 +111,7 @@ def package_as_gae_war(app, env, war_path, war_zip_path, war_exclusion_list = No
             rm_if_exists(f)
 
         copy_directory(os.path.join(app.path, 'conf'), path('WEB-INF/classes'))
-        copy_directory(os.path.join(app.path, 'public'), path('public'))
+        copy_directory(os.path.join(app.path, 'public'), path('WEB-INF/public'))
         rm_if_exists('WEB-INF/lib')
         mkdir('WEB-INF/lib')
         for jar in classpath:
