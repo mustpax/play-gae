@@ -17,13 +17,14 @@ MODULE = "gae"
 
 COMMANDS = ["gae:deploy", "gae:package", "gae:update_indexes", "gae:vacuum_indexes", "gae:update_queues",
             "gae:update_dos", "gae:update_cron", "gae:cron_info", "gae:request_logs", "gae:rollback",
-            "gae:update_backend", "gae:backend_info"]
+            "gae:update_backend", "gae:backend_info", "gae:update_dispatch"]
 HELP = {
     'gae:deploy': "Deploy to Google App Engine",
     'gae:update_indexes': "Updating Indexes",
     'gae:vacuum_indexes': "Deleting Unused Indexes",
     'gae:update_queues': "Managing Task Queues",
     'gae:update_dos': "Managing DoS Protection",
+    'gae:update_dispatch': "Managing Dispatch File",
     'gae:update_cron': "Managing Scheduled Tasks : upload cron job specifications",
     'gae:cron_info': "Managing Scheduled Tasks : verify your cron configuration",
     'gae:request_logs': "Download logs from Google App Engine",
@@ -318,6 +319,26 @@ def execute(**kargs):
         print '~ ---------'
 
         package_as_gae_war(app, env, war_path, None, ['submodules'])
+        print "~ "
+        print "~ Done!"
+        print "~ "
+        sys.exit(0)
+    if command == "gae:update_dispatch":
+        print '~'
+        print '~ Updating dispatch file'
+        print '~ ---------'
+
+        if os.name == 'nt':
+            if (username != "" and password != ""):
+                os.system('echo %s | %s/bin/appcfg.cmd --email=%s --passin update_dispatch %s' % (password, gae_path, username, war_path))
+            else:
+                os.system('%s/bin/appcfg.cmd --oauth2 update_dispatch %s' % (gae_path, war_path))
+        else:
+            if (username != "" and password != ""):
+                os.system('echo %s | %s/bin/appcfg.sh --email=%s --passin update_dispatch %s' % (password, gae_path, username, war_path))
+            else:
+                os.system('%s/bin/appcfg.sh --oauth2 update_dispatch %s' % (gae_path, war_path))
+
         print "~ "
         print "~ Done!"
         print "~ "
