@@ -67,7 +67,7 @@ def package_as_gae_war(app, env, war_path, war_zip_path, war_exclusion_list = No
         copy_directory(os.path.join(app.path, 'war'), war_path)
     else:
         os.makedirs(war_path)
-    
+
     def exists(f):
         return os.path.exists(os.path.join(war_path, f))
     def mkdir(f):
@@ -81,72 +81,65 @@ def package_as_gae_war(app, env, war_path, war_zip_path, war_exclusion_list = No
         if exists(f):
             rmtree(f)
 
-    if not os.path.exists(os.path.join(war_path, 'WEB-INF')): os.mkdir(os.path.join(war_path, 'WEB-INF'))
-    if not os.path.exists(os.path.join(war_path, 'WEB-INF/web.xml')):
+    if not exists('WEB-INF'):
+        mkdir('WEB-INF')
+
+    if not exists('WEB-INF/web.xml'):
         shutil.copyfile(os.path.join(env["basedir"], 'resources/war/web.xml'), os.path.join(war_path, 'WEB-INF/web.xml'))
+
+    # Replacements
     application_name = app.readConf('application.name')
     replaceAll(os.path.join(war_path, 'WEB-INF/web.xml'), r'%APPLICATION_NAME%', application_name)
     if env["id"]:
         replaceAll(os.path.join(war_path, 'WEB-INF/web.xml'), r'%PLAY_ID%', env["id"])
     else:
         replaceAll(os.path.join(war_path, 'WEB-INF/web.xml'), r'%PLAY_ID%', 'war')
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/application')): shutil.rmtree(os.path.join(war_path, 'WEB-INF/application'))
+
+    rm_if_exists('WEB-INF/application')
+
     copy_directory(app.path, os.path.join(war_path, 'WEB-INF/application'), war_exclusion_list)
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/application/war')):
-        shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/war'))
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/application/logs')):
-        shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/logs'))
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/application/tmp')):
-        shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/tmp'))
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/application/lib')):
-        shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/lib'))
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/application/modules')):
-        shutil.rmtree(os.path.join(war_path, 'WEB-INF/application/modules'))
+
+    for f in ['WEB-INF/application/war',
+            'WEB-INF/application/logs',
+            'WEB-INF/application/tmp',
+            'WEB-INF/application/lib',
+            'WEB-INF/application/modules']:
+        rm_if_exists(f)
+
     copy_directory(os.path.join(app.path, 'conf'), os.path.join(war_path, 'WEB-INF/classes'))
     copy_directory(os.path.join(app.path, 'public'), os.path.join(war_path, 'public'))
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/lib')): shutil.rmtree(os.path.join(war_path, 'WEB-INF/lib'))
+    if no exists('WEB-INF/lib'):
+        rmtree('WEB-INF/lib')
     os.mkdir(os.path.join(war_path, 'WEB-INF/lib'))
     for jar in classpath:
         # SPECIFIC GAE : excludes from the libs all provided and postgres/mysql/jdbc libs
         # keeps appengine-api only
         # appengine-api-labs removed
-        gae_excluded = [
-                        'provided-', 'postgres', 'mysql', 'jdbc',
+        gae_excluded = ['provided-', 'postgres', 'mysql', 'jdbc',
                         'appengine-agent',  'appengine-agentimpl',
                         'appengine-agentruntime', 'appengine-api-stubs',
-                        'appengine-local-runtime', 'appengine-testing'
-        ]
+                        'appengine-local-runtime', 'appengine-testing']
         if jar.endswith('.jar'):
             if find(lambda excl: excl in jar, gae_excluded):
                 print "~ Excluding JAR %s ..." % jar
             else:
                 shutil.copyfile(jar, os.path.join(war_path, 'WEB-INF/lib/%s' % os.path.split(jar)[1]))
-    if os.path.exists(os.path.join(war_path, 'WEB-INF/framework')): shutil.rmtree(os.path.join(war_path, 'WEB-INF/framework'))
-    os.mkdir(os.path.join(war_path, 'WEB-INF/framework'))
+    if exists('WEB-INF/framework'):
+        rmtree('WEB-INF/framework'))
+    mkdir('WEB-INF/framework')
     copy_directory(os.path.join(env["basedir"], 'framework/templates'), os.path.join(war_path, 'WEB-INF/framework/templates'))
 
     # modules
     for module in modules:
         to = os.path.join(war_path, 'WEB-INF/application/modules/%s' % os.path.basename(module))
         copy_directory(module, to)
-        if os.path.exists(os.path.join(to, 'src')):
-            shutil.rmtree(os.path.join(to, 'src'))
-        if os.path.exists(os.path.join(to, 'dist')):
-            shutil.rmtree(os.path.join(to, 'dist'))
-        if os.path.exists(os.path.join(to, 'samples-and-tests')):
-            shutil.rmtree(os.path.join(to, 'samples-and-tests'))
-        if os.path.exists(os.path.join(to, 'build.xml')):
-            os.remove(os.path.join(to, 'build.xml'))
-        if os.path.exists(os.path.join(to, 'commands.py')):
-            os.remove(os.path.join(to, 'commands.py'))
-        if os.path.exists(os.path.join(to, 'lib')):
-            shutil.rmtree(os.path.join(to, 'lib'))
-        if os.path.exists(os.path.join(to, 'nbproject')):
-            shutil.rmtree(os.path.join(to, 'nbproject'))
-        if os.path.exists(os.path.join(to, 'documentation')):
-            shutil.rmtree(os.path.join(to, 'documentation'))
+        for f in ['src', 'src', 'dist', 'dist', 'samples-and-tests', 'samples-and-tests',
+                'build.xml', 'build.xml', 'commands.py', 'commands.py', 'lib', 'lib',
+                'nbproject', 'nbproject', 'documentation', 'documentation']:
+            if os.path.exists(os.path.join(to, f)):
+                shutil.rmtree(os.path.join(to, f))
 
-    if not os.path.exists(os.path.join(war_path, 'WEB-INF/resources')): os.mkdir(os.path.join(war_path, 'WEB-INF/resources'))
+    mkdir_if_not_exists('WEB-INF/resources')
     shutil.copyfile(os.path.join(env["basedir"], 'resources/messages'), os.path.join(war_path, 'WEB-INF/resources/messages'))
 
     if war_zip_path:
