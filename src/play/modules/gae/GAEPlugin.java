@@ -34,29 +34,6 @@ public class GAEPlugin extends PlayPlugin {
             Logger.warn("No Google App Engine environment found. Setting up a development environment");
             devEnvironment = PlayDevEnvironment.create();
             System.setProperty("appengine.orm.disable.duplicate.emf.exception", "yes");
-            File warExt = Play.getFile("war");
-            if (!warExt.exists()) {
-                warExt.mkdir();
-            }
-            File webInf = Play.getFile("war/WEB-INF");
-            if (!webInf.exists()) {
-                webInf.mkdir();
-            }
-            File xml = Play.getFile("war/WEB-INF/appengine-web.xml");
-            try {
-                if (!xml.exists()) {
-                    IO.writeContent("<appengine-web-app xmlns=\"http://appengine.google.com/ns/1.0\">\n" +
-                            "\t<application><!-- Replace this with your application id from http://appengine.google.com --></application>\n" +
-                            "\t<version>1</version>\n" +
-                            "\t<threadsafe>true</threadsafe>\n" +
-                            "</appengine-web-app>\n", xml);
-                }
-                if (IO.readContentAsString(xml).contains("<!-- Replace this with your application id from http://appengine.google.com -->")) {
-                    Logger.warn("Don't forget to define your GAE application id in the 'war/WEB-INF/appengine-web.xml' file");
-                }
-            } catch (Exception e) {
-                Logger.error(e, "Cannot init GAE files");
-            }
             Logger.warn("");
         } else {
             // Force to PROD mode when hosted on production GAE
@@ -67,12 +44,13 @@ public class GAEPlugin extends PlayPlugin {
 
     @Override
     public void onRoutesLoaded() {
-        Router.addRoute("GET", "/_ah/login", "GAEActions.login");
-        Router.addRoute("POST", "/_ah/login", "GAEActions.doLogin");
-        Router.addRoute("GET", "/_ah/logout", "GAEActions.logout");
-        Router.addRoute("GET", "/_ah/start", "GAEActions.startBackend");
-        if(Play.mode == Play.Mode.DEV)
-        	Router.addRoute("GET", "/_ah/admin", "GAEActions.adminConsole");
+        if(Play.mode == Play.Mode.DEV) {
+            Router.addRoute("GET", "/_ah/login", "GAEActions.login");
+            Router.addRoute("POST", "/_ah/login", "GAEActions.doLogin");
+            Router.addRoute("GET", "/_ah/logout", "GAEActions.logout");
+            Router.addRoute("GET", "/_ah/start", "GAEActions.startBackend");
+            Router.addRoute("GET", "/_ah/admin", "GAEActions.adminConsole");
+        }
     }
 
     @Override
