@@ -14,9 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-//import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
-//import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
-
 public class PlayDevEnvironment implements Environment, LocalServerEnvironment {
 
     public static PlayDevEnvironment create() {
@@ -28,24 +25,6 @@ public class PlayDevEnvironment implements Environment, LocalServerEnvironment {
 		proxy.setProperty(
             LocalDatastoreService.BACKING_STORE_PROPERTY,
             Play.getFile("tmp/datastore").getAbsolutePath());
-
-        /* Commented this because using test configs poses problems in DEV mode
-
-        // Save datastore file in tmp/
-		LocalDatastoreServiceTestConfig datastoreConfig = new LocalDatastoreServiceTestConfig();
-		datastoreConfig.setNoStorage(false);
-		datastoreConfig.setBackingStoreLocation(Play.applicationPath + "/tmp/datastore");
-		datastoreConfig.setUp();
-
-		// Use local implementation for deferred queues
-		LocalTaskQueueTestConfig taskQueueConfig = new LocalTaskQueueTestConfig();
-		taskQueueConfig.setDisableAutoTaskExecution(false);
-		taskQueueConfig.setShouldCopyApiProxyEnvironment(true);
-		taskQueueConfig.setCallbackClass(LocalTaskQueueTestConfig.DeferredTaskCallback.class);
-		taskQueueConfig.setUp();
-        */
-
-
         return instance;
     }
 
@@ -56,7 +35,7 @@ public class PlayDevEnvironment implements Environment, LocalServerEnvironment {
 
     @Override
     public String getModuleId() {
-        return "TODO"; // FIXME
+        return "default";
     }
 
     @Override
@@ -93,13 +72,6 @@ public class PlayDevEnvironment implements Environment, LocalServerEnvironment {
         return "";
     }
 
-    public String getDefaultNamespace() {
-        return "";
-    }
-
-    public void setDefaultNamespace(String ns) {
-    }
-
     @Override
     public Map<String, Object> getAttributes() {
         HashMap<String, Object> hashMap = new HashMap<String, Object>();
@@ -109,8 +81,7 @@ public class PlayDevEnvironment implements Environment, LocalServerEnvironment {
     }
 
     @Override
-    public void waitForServerToStart() throws InterruptedException {
-    }
+    public void waitForServerToStart() throws InterruptedException { }
 
     @Override
     public int getPort() {
@@ -119,7 +90,7 @@ public class PlayDevEnvironment implements Environment, LocalServerEnvironment {
 
     @Override
     public File getAppDir() {
-        return new File(Play.applicationPath, "war");
+        return new File(Play.applicationPath, "war" + File.pathSeparator + getModuleId());
     }
 
     @Override
