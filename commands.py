@@ -67,6 +67,20 @@ def package_as_gae_war(app, env, war_path, war_zip_path, war_exclusion_list = No
         copy_directory(os.path.join(app.path, 'war'), war_path)
     else:
         os.makedirs(war_path)
+    
+    def exists(f):
+        return os.path.exists(os.path.join(war_path, f))
+    def mkdir(f):
+        os.mkdir(os.path.join(war_path, f))
+    def rmtree(f):
+        shutil.rmtree(os.path.join(war_path, f))
+    def mkdir_if_not_exists(f):
+        if not exists(f):
+            mkdir(f)
+    def rm_if_exists(f):
+        if exists(f):
+            rmtree(f)
+
     if not os.path.exists(os.path.join(war_path, 'WEB-INF')): os.mkdir(os.path.join(war_path, 'WEB-INF'))
     if not os.path.exists(os.path.join(war_path, 'WEB-INF/web.xml')):
         shutil.copyfile(os.path.join(env["basedir"], 'resources/war/web.xml'), os.path.join(war_path, 'WEB-INF/web.xml'))
