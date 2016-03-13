@@ -328,6 +328,10 @@ def execute(**kargs):
         print '~ Updating dispatch file'
         print '~ ---------'
 
+        default_module = os.path.join(war_path, 'default')
+        if os.path.exists(default_module):
+            war_path = default_module
+
         if os.name == 'nt':
             if (username != "" and password != ""):
                 os.system('echo %s | %s/bin/appcfg.cmd --email=%s --passin update_dispatch %s' % (password, gae_path, username, war_path))
